@@ -70,4 +70,4 @@ run_params=(
 docker rm -f $VERSION > /dev/null 2>&1 || true
 
 # create the Docker container
-docker run -it "${run_params[@]}" --name $VERSION angelolab/ark-analysis:$VERSION
+docker run -it "${run_params[@]}" --name $VERSION ark_local:latest
