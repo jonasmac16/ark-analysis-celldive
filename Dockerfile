@@ -12,6 +12,9 @@ RUN apt update && apt -y upgrade
 # install gcc
 RUN apt install -y gcc
 
+# install java
+RUN apt install -y default-jre
+
 # install git, curl
 RUN apt install -y git curl
 
@@ -43,6 +46,20 @@ FROM move_templates AS install_ark
 
 # Install the package via setup.py
 RUN cd /opt/ark-analysis && python -m pip install .
+
+# download deepcell models
+RUN mkdir -p /.keras/models \
+    && cd /.keras/models \
+    && wget https://deepcell-data.s3-us-west-1.amazonaws.com/saved-models/MultiplexSegmentation-9.tar.gz \
+    && tar -xvzf MultiplexSegmentation-9.tar.gz \
+    && rm MultiplexSegmentation-9.tar.gz \
+    && ln -s /.keras /root
+
+# download bftools
+RUN cd /opt \
+    && wget https://downloads.openmicroscopy.org/bio-formats/6.13.0/artifacts/bftools.zip \
+    && unzip bftools.zip \
+    && rm bftools.zip
 
 # Stage 5: Set the working directory, and open Jupyter Lab
 FROM install_ark AS open_for_user
