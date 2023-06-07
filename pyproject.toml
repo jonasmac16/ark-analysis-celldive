@@ -13,7 +13,7 @@ dependencies = [
     "alpineer==0.1.6",
     "Cython>=0.29,<1",
     "datasets>=2.6,<3.0",
-    "deepcell-cpu>=0.12.5,<1.0",
+    "deepcell>=0.12.5,<1.0",
     "dill>=0.3.5,<0.4",
     "feather-format>=0.4.1,<1",
     "imagecodecs>=2023.3.16",

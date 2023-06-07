@@ -1,0 +1,86 @@
+# ANY CHANGES REQURIE A NEW RELEASE
+
+# Stage 1: Start from the official Tensorflow image
+# FROM python:3.8 AS base
+ARG TF_VERSION=2.8.0-gpu
+
+FROM tensorflow/tensorflow:${TF_VERSION} as base
+
+# https://forums.developer.nvidia.com/t/notice-cuda-linux-repository-key-rotation/212771
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
+# RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/$distro/$arch/3bf863cc.pub
+
+# Set environment variable 
+ENV RUNNING_IN_DOCKER true
+
+# system maintenance
+RUN apt-get update
+
+# install gcc
+RUN apt-get install -y gcc
+
+# install java
+RUN apt-get install -y default-jre
+
+# install git, curl, wget
+RUN apt-get install -y git curl wget python3-pip
+
+# install cudnn libs
+#ARG cudnn_version=8.9.2
+#ARG cuda_version=11.7
+#RUN apt-get install -y libcudnn8=8.9.2.26-1+11.7
+#RUN apt-get install -y libcudnn8-dev=8.9.2.26-1+11.7
+#RUN apt-get install -y libcudnn8-samples=8.9.2.26-1+11.7
+
+
+# Install zsh shell
+#RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.5/zsh-in-docker.sh)" --\
+ #   -t robbyrussell \
+ #   -p git \
+ #   -p https://github.com/zsh-users/zsh-autosuggestions \
+ #   -p https://github.com/zsh-users/zsh-completions
+
+# Stage 2: Installing Ark Analysis
+FROM base AS move_ark
+
+# copy over: setup.py, pyproject.toml, README and start_jupyter.sh script
+COPY setup.py pyproject.toml README.md start_jupyter.sh /opt/ark-analysis/
+
+# Copy over .git for commit history (dynamic versioning requires this in order to build ark)
+COPY .git /opt/ark-analysis/.git
+
+# Stage 3: Copy templates/ to scripts/
+FROM move_ark AS move_templates
+
+# copy the scripts over
+# this should catch changes to the scripts from updates
+COPY src /opt/ark-analysis/src
+
+# Stage 4: Install Ark Analysis
+FROM move_templates AS install_ark
+
+# Install the package via setup.py
+RUN cd /opt/ark-analysis && pip3 install .
+#RUN python -m pip install requests -U
+
+# download deepcell models
+RUN mkdir -p /.keras/models \
+    && cd /.keras/models \
+    && wget https://deepcell-data.s3-us-west-1.amazonaws.com/saved-models/MultiplexSegmentation-9.tar.gz \
+    && tar -xvzf MultiplexSegmentation-9.tar.gz \
+    && rm MultiplexSegmentation-9.tar.gz \
+    && ln -s /.keras /root
+
+# download bftools
+RUN cd /opt \
+    && wget https://downloads.openmicroscopy.org/bio-formats/6.13.0/artifacts/bftools.zip \
+    && unzip bftools.zip \
+    && rm bftools.zip
+
+# Stage 5: Set the working directory, and open Jupyter Lab
+FROM install_ark AS open_for_user
+WORKDIR /opt/ark-analysis
+
+# jupyter lab
+CMD bash -c "python -m pip list"
+#start_jupyter.sh

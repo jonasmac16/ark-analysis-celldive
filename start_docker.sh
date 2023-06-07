@@ -70,4 +70,4 @@ run_params=(
 docker rm -f $VERSION > /dev/null 2>&1 || true
 
 # create the Docker container
-docker run -it "${run_params[@]}" --name $VERSION ark_local:latest
+docker run --gpus=all -it "${run_params[@]}" --name $VERSION ark_local:latest bash -c ". /opt/ark-analysis/start_jupyter.sh"
