@@ -1,4 +1,11 @@
 
+import os
+import numpy as np
+from deepcell.applications import Mesmer
+from tensorflow.keras.models import load_model
+
+keras_model = load_model(Path("/.keras/models/MultiplexSegmentation") )
+app = Mesmer(model=keras_model)
 
 
 def tile_sizer(img_col_dim, img_row_dim, min_col_tile_size, min_row_tile_size, overlap, max_tile_area = 5000^2, min_tile_area = 500^2, n_tiles = range(2,10)):
@@ -28,8 +35,8 @@ def tile_sizer(img_col_dim, img_row_dim, min_col_tile_size, min_row_tile_size, o
     
     else:    
         for n in n_tiles:
-            for col_tile_size in reversed(np.maximum(range(round(x/n), min_col_tile_size), np.minimum((y*2)+1, x+1))):
-                for row_tile_size in reversed(np.maximum(range(round(col_tile_size/2), min_row_tile_size), np.minimum(round(col_tile_size*2), y+1))):
+            for col_tile_size in reversed(np.maximum(range(round(img_col_dim/n), min_col_tile_size), np.minimum((img_row_dim*2)+1, img_col_dim+1))):
+                for row_tile_size in reversed(np.maximum(range(round(col_tile_size/2), min_row_tile_size), np.minimum(round(col_tile_size*2), img_row_dim+1))):
                     if test_cond(img_col_dim,img_row_dim,col_tile_size,row_tile_size, n, overlap):
                         res = {'col_tile_size' : col_tile_size, 'row_tile_size' : row_tile_size, 'n_tiles' : n, 'overlap' : overlap}
 
