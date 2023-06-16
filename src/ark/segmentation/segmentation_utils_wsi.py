@@ -1,7 +1,7 @@
 
 
 
- def tile_sizer(img_col_dim, img_row_dim, min_col_tile_size, min_row_tile_size, overlap, max_tile_area = 5000^2, min_tile_area = 500^2, n_tiles = range(2,10)):
+def tile_sizer(img_col_dim, img_row_dim, min_col_tile_size, min_row_tile_size, overlap, max_tile_area = 5000^2, min_tile_area = 500^2, n_tiles = range(2,10)):
     def _f_xy(dim_size, n, tile_size, ov):
         return dim_size <= ov + n * (tile_size - ov)
     
