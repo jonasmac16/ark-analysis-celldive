@@ -32,7 +32,7 @@ def tile_sizer(img_col_dim, img_row_dim, min_col_tile_size, min_row_tile_size, o
     
     res = None
 
-    if _max_tile_size(img_col_dim,img_row_dim) == False:
+    if _max_tile_size(img_col_dim,img_row_dim) and _xy_ratio(img_col_dim, img_row_dim):
         res = {'col_tile_size' : img_col_dim, 'row_tile_size' : img_row_dim, 'n_tiles' : 1, 'overlap' : 0}
     
     else:    
