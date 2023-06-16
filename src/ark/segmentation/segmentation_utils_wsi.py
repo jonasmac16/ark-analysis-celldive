@@ -16,7 +16,7 @@ def tile_sizer(img_col_dim, img_row_dim, min_col_tile_size, min_row_tile_size, o
     def test_cond(img_col_dim, img_row_dim, col_tile_size,row_tile_size, n, overlap):
         col_tile_size_final = np.minimum(np.maximum(range(0, x+overlap, col_tile_size)[-1] - overlap, 0) + col_tile_size, x) - np.maximum(range(0, x+overlap, col_tile_size)[-1] - overlap, 0)
         row_tile_size_final = np.minimum(np.maximum(range(0, y+overlap, row_tile_size)[-1] - overlap, 0) + row_tile_size, y) - np.maximum(range(0, y+overlap, row_tile_size)[-1] - overlap, 0)
-        return(_f_xy(img_row_dim, n, row_tile_size, overlap) and _f_xy(img_col_dim,, n, col_tile_size, overlap) and _max_tile_size(col_tile_size, row_tile_size) and _min_tile_size(col_tile_size_final, row_tile_size_final) and _xy_ratio(col_tile_size, row_tile_size) and _xy_ratio(col_tile_size_final, row_tile_size) and _xy_ratio(col_tile_size, row_tile_size_final) and _xy_ratio(col_tile_size_final, row_tile_size_final))
+        return(_f_xy(img_row_dim, n, row_tile_size, overlap) and _f_xy(img_col_dim, n, col_tile_size, overlap) and _max_tile_size(col_tile_size, row_tile_size) and _min_tile_size(col_tile_size_final, row_tile_size_final) and _xy_ratio(col_tile_size, row_tile_size) and _xy_ratio(col_tile_size_final, row_tile_size) and _xy_ratio(col_tile_size, row_tile_size_final) and _xy_ratio(col_tile_size_final, row_tile_size_final))
     
     def _min_tile_size(col_dim, row_dim, ref=min_tile_area):
         return col_dim*row_dim >= ref
