@@ -162,7 +162,7 @@ def predict_tiled(img, min_tile_size_col, min_tile_size_row, dummy_var, overlap=
     #   iterate over the first dimension
     for fov_idx in range(img.shape[0]):
         fov = img[[fov_idx], ...]
-        tile = func_tile_sizer_faster(fov.shape[2], fov.shape[1], min_tile_size_col, min_tile_size_row, overlap=overlap)
+        tile = tile_sizer(fov.shape[2], fov.shape[1], min_tile_size_col, min_tile_size_row, overlap=overlap)
         
         step_size_row = tile["row_tile_size"]
         step_size_col = tile["col_tile_size"]
