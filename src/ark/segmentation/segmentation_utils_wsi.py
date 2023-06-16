@@ -90,7 +90,7 @@ def determine_boundaries(img, r0,r1,c0,c1):
     
     return(boundaries)
 
-def tiled_segmentation_overlap(img, start_row, start_col, stop_row, stop_col, step_size_row, step_size_col, dummy_var, overlap = 0, cutoff=2, background_threshold = 0.1, compartment='whole-cell'):
+def tiled_segmentation_overlap(img, start_row, start_col, stop_row, stop_col, step_size_row, step_size_col, dummy_var, overlap = 0, cutoff=2, background_threshold = 0.1, compartment='whole-cell', postprocess_kwargs_whole_cell={}, postprocess_kwargs_nuclear={}):
     if compartment in ["whole-cell", "nuclear"]:
         mask_array = np.expand_dims(np.full_like(img, -99, dtype=int)[:,:,:,0], 3)
     elif compartment == "both":
@@ -108,7 +108,7 @@ def tiled_segmentation_overlap(img, start_row, start_col, stop_row, stop_col, st
             if np.max(img[:,:,:,:]) < background_threshold:
                 tmp_segmentation = np.zeros_like(mask_array, dtype=int)[:, r0:r1, c0:c1,:]
             else:
-                tmp_segmentation = app.predict(img[:, r0:r1, c0:c1,:], compartment=compartment)
+                tmp_segmentation = app.predict(img[:, r0:r1, c0:c1,:], compartment=compartment, , postprocess_kwargs_whole_cell=postprocess_kwargs_whole_cell, postprocess_kwargs_nuclear=postprocess_kwargs_whole_cell)
 
                 for j in range(tmp_segmentation.shape[3]):
                     tmp_segmentation[0,:,:,j] = remove_boundary_mask(tmp_segmentation[0,:,:,j], cutoff, boundaries, dummy_var)
@@ -160,7 +160,7 @@ def _combine_overlapping_masks(mask_x, mask_y, dummy_var):
     gc.collect()
     return(mask_x)
 
-def predict_tiled(img, min_tile_size_col, min_tile_size_row, dummy_var, overlap=0, cutoff=2, background_threshold= 0.1, infer_gaps = True, compartment='whole-cell'):
+def predict_tiled(img, min_tile_size_col, min_tile_size_row, dummy_var, overlap=0, cutoff=2, background_threshold= 0.1, infer_gaps = True, compartment='whole-cell', postprocess_kwargs_whole_cell={}, postprocess_kwargs_nuclear={}):
     #   ensure the image has 4 dimensions to start with and that the last one is 2 dims
     if len(img.shape) != 4:
         raise ValueError(f"Image data must be 4D, got image of shape {img.shape}")
@@ -182,10 +182,10 @@ def predict_tiled(img, min_tile_size_col, min_tile_size_row, dummy_var, overlap=
         start_row1, start_col1, stop_row1, stop_col1 = 0, 0, fov.shape[1]+overlap_tiles, fov.shape[2]+overlap_tiles
         
         if infer_gaps:
-            _mask = tiled_segmentation_overlap(fov, start_row1, start_col1, stop_row1, stop_col1, step_size_row, step_size_col, dummy_var,overlap = overlap_tiles, cutoff = cutoff, background_threshold = background_threshold, compartment = compartment)
+            _mask = tiled_segmentation_overlap(fov, start_row1, start_col1, stop_row1, stop_col1, step_size_row, step_size_col, dummy_var,overlap = overlap_tiles, cutoff = cutoff, background_threshold = background_threshold, compartment = compartment, postprocess_kwargs_whole_cell=postprocess_kwargs_whole_cell, postprocess_kwargs_nuclear=postprocess_kwargs_nuclear)
             _mask[np.isin(_mask, [-99])] = 0
         else:
-            _mask = tiled_segmentation_overlap(fov, start_row1, start_col1, stop_row1, stop_col1, step_size_row, step_size_col, dummy_var,overlap = 0, cutoff = cutoff, background_threshold = background_threshold, compartment = compartment)
+            _mask = tiled_segmentation_overlap(fov, start_row1, start_col1, stop_row1, stop_col1, step_size_row, step_size_col, dummy_var,overlap = 0, cutoff = cutoff, background_threshold = background_threshold, compartment = compartment, postprocess_kwargs_whole_cell=postprocess_kwargs_whole_cell, postprocess_kwargs_nuclear=postprocess_kwargs_nuclear)
             _mask[np.isin(_mask, [-99])] = 0
 
         for j in range(_mask.shape[3]):
