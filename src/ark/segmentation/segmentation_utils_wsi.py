@@ -3,6 +3,8 @@ import os
 import numpy as np
 from deepcell.applications import Mesmer
 from tensorflow.keras.models import load_model
+from pathlib import Path
+import gc
 
 keras_model = load_model(Path("/.keras/models/MultiplexSegmentation") )
 app = Mesmer(model=keras_model)
@@ -30,7 +32,7 @@ def tile_sizer(img_col_dim, img_row_dim, min_col_tile_size, min_row_tile_size, o
     
     res = None
 
-    if _max_tile_size(img_col_dim,img_row_dim):
+    if _max_tile_size(img_col_dim,img_row_dim) == False:
         res = {'col_tile_size' : img_col_dim, 'row_tile_size' : img_row_dim, 'n_tiles' : 1, 'overlap' : 0}
     
     else:    
@@ -41,7 +43,7 @@ def tile_sizer(img_col_dim, img_row_dim, min_col_tile_size, min_row_tile_size, o
                         res = {'col_tile_size' : col_tile_size, 'row_tile_size' : row_tile_size, 'n_tiles' : n, 'overlap' : overlap}
 
     if res == None:
-        raise ValueError(f"No appropriate tile size for {img.shape} and overlap {overlap} could be determined.")
+        raise ValueError(f"No appropriate tile size for image of size {img_col_dim} x {img_row_dim} and overlap {overlap} could be determined.")
     else:
         return(res)
     
